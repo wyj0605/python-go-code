@@ -1,0 +1,72 @@
+
+service telnet
+{
+        flags           = REUSE
+        socket_type     = stream
+        wait            = no
+        user            = root
+        server          = /usr/sbin/in.telnetd
+        log_on_failure  += USERID
+        disable         = yes
+}
+
+~
+[root@www ~]# vim /etc/xinetd.d/telnet
+[root@www ~]# chkconfig telnet on
+
+CentOS release 6.5 (Final)
+Kernel 2.6.32-431.el6.x86_64 on an x86_64
+login: admin
+Password:
+[admin@www ~]$ ls
+issue
+[admin@www ~]$ cat issue
+CentOS release 6.5 (Final)
+Kernel \r on an \m
+
+[admin@www ~]$
+spawn
+
+
+
+
+TELNET: 
+Telnet协议是TCP/IP协议族中的一员，是Internet远程登陆服务的标准协议和主要方式。它为用户提供了在本地计算机上完成远程主机工作的能力。使用明文传输，非常不安全。
+
+#yum install telnet telnet-server -y #安装telnet
+#chkconfig telnet on             #开机启动
+#vi /etc/xinetd.conf      #tcpwrappers总控制文件
+        no_access       = 10.0.0.xx     # 不允许指定IP访问，其优先级比only_from要高
+        only_from       = 10.0.0.xx     #仅允许某ip访问
+        cps             = 2 10          #同一时间连接主机个数，拒绝10秒，10秒后第11台就可以连接了
+        instances       = 20            #能够建立链接的最大个数
+        per_source      = 10            #每台机器最多与主机所建立的链接到个数
+
+#/etc/init.d/xinetd  restart 
+#vim /etc/xinetd.d/telnet
+service telnet
+{
+        flags           = REUSE        #
+        socket_type     = stream	#socket 流方式
+        wait            = no		#是否等待
+        user            = root		#用户权限
+        server          = /usr/sbin/in.telnetd
+        log_on_failure  += USERID	#+=继承上面的默认配置
+        disable         = no		#是否开机启动
+}
+
+TCPWRAP：
+ldd /usr/sbin/sshd  查看某服务是否支持tcpwap
+
+/etc/hosts.allow 比/etc/hosts.deny 优先级高
+
+
+监控：（只能监控支持tcpwrap的服务）
+
+sshd,in.telnetd:10.0.0. EXCEPT 10.0.0.7  #允许此网段所有主机7除外,条件用空格隔开
+
+修改/etc/hosts.allow 文件配置访问权限及创建访问日志
+sshd,in.telnetd:192.168.0.  :spawn echo `date` from %c to %s  >> /var/log/tcpwrapper     
+%c：表示访问者ip，
+%s：表示目的ip
+

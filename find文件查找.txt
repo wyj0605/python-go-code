@@ -1,0 +1,200 @@
+locate
+	非实时，模糊查找，查找是根据全系统数据进行时
+	update ，手动生成文件数据库
+	
+	
+
+rwx
+	r-- 只读
+	r-x 读和执行
+	--- 无权限
+0 000 ---无权限
+1 001 --x 执行
+2 010 -w- 写
+3 011 -wx 写和执行
+4 100 r-- 只读
+5 101 r-x 读和执行
+6 110 rw- 读写
+7 111 rwx 读写执行
+
+
+
+
+
+
+
+
+find ：
+	实时
+	精确
+	
+find [查找路径] 查找标准 查找到以后的处理运作
+
+查找路径：默认为当前目录
+查找标准：默认为指定路径下的所有文件
+处理运作：默认为显示
+
+匹配标准：
+	-name ‘filename'  对文件名精确匹配
+	文件名通配
+	*:任意长度的任意字符
+	?
+	[]
+	-iname 'file':文件名匹配时不区分大小写
+	-user username 根据属主查找
+	-group username 根据属组查找
+	-uid  根据uid查找
+	-gid 	根据gid查找
+	-nouser 查找没有属主的文件
+	-nogroup 查找没有属组的文件
+	-type 根据文件类型找查
+		f :普通文件
+		c 字符文件
+		p 管道文件
+		d 目录文件
+		l 链接文件
+	-size
+		[+|-]  #k #M #G  
+
+
+	-mtime 创建时间
+	-ctime 修改时间
+	-atime 访问时间
+		[+|-]
+	-mmin  
+	-cmin
+	+amin
+		[+|-]	加减访问修改创建时间。	
+	-perm 664  精确文件权限查找
+		/MODE
+		-MODE
+
+组合条件 
+	-a 与，同时出现
+	-o 或者
+	-not
+find ./ -not -user root
+find ./ -not \(-user user1 -o -user user2\)
+fine /etc -size 10k -ls
+动作
+	-print 显示 
+	-ls  类似ls-l
+	-exec chmod o-w {} \; 固定格式
+	-ok COMMAND {} \; 每一次操作都需要用户的确认
+	-exec COMMAND {} \;每一次操作不需要用户确认
+	-perm -020 -exec mv {} {}.new \;  只要引用这个文件的文件名要用{}代替
+ find -amin -5
+
+[root@localhost shsh]# find ./ -name "*.sh" -perm -111 -exec chmod o-x {} \; [root@localhost shsh]# ls
+first.sh  five.sh  four.sh  sed.txt  sum.sh  three.sh  two.sh
+[root@localhost shsh]# ls -l
+总计 28
+-rwxr-xr-- 1 root root 145 03-01 04:25 first.sh
+-rwxr-xr-- 1 root root  81 03-01 07:39 five.sh
+-rwxr-xr-- 1 root root 246 03-01 05:56 four.sh
+-rw-r--r-- 1 root root  24 03-01 13:10 sed.txt
+-rwxr-xr-- 1 root root  77 03-02 06:20 sum.sh
+-rwxr-xr-- 1 root root 134 03-01 05:28 three.sh
+-rwxr-xr-- 1 root root 189 03-01 04:55 two.sh
+
+[root@localhost shsh]# find --help
+用法：find [路径...] [表达式]
+
+default path is the current directory; default expression is -print
+expression may consist of: operators, options, tests, and actions:
+
+operators (decreasing precedence; -and is implicit where no others are given):
+      ( EXPR )   ! EXPR   -not EXPR   EXPR1 -a EXPR2   EXPR1 -and EXPR2
+      EXPR1 -o EXPR2   EXPR1 -or EXPR2   EXPR1 , EXPR2
+
+positional options (always true): -daystart -follow -regextype
+
+normal options (always true, specified before other expressions):
+      -depth --help -maxdepth LEVELS -mindepth LEVELS -mount -noleaf
+      --version -xdev -ignore_readdir_race -noignore_readdir_race
+
+tests (N can be +N or -N or N): -amin N -anewer FILE -atime N -cmin N
+      -cnewer FILE -ctime N -empty -false -fstype TYPE -gid N -group NAME
+      -ilname PATTERN -iname PATTERN -inum N -iwholename PATTERN -iregex PATTERN
+      -links N -lname PATTERN -mmin N -mtime N -name PATTERN -newer FILE
+      -nouser -nogroup -path PATTERN -perm [+-]MODE -regex PATTERN
+      -wholename PATTERN -size N[bcwkMG] -true -type [bcdpflsD] -uid N
+      -used N -user NAME -xtype [bcdpfls]
+      -context CONTEXT
+
+
+actions: -delete -print0 -printf FORMAT -fprintf FILE FORMAT -print
+      -fprint0 FILE -fprint FILE -ls -fls FILE -prune -quit
+      -exec COMMAND ; -exec COMMAND {} + -ok COMMAND ;
+      -execdir COMMAND ; -execdir COMMAND {} + -okdir COMMAND ;
+
+Report (and track progress on fixing) bugs via the findutils bug-reporting
+page at http://savannah.gnu.org/ or, if you have no web access, by sending
+email to <bug-findutils@gnu.org>.
+
+
+1、查找/var目录下的属主为root并且属组为mail的所有文件
+
+[root@localhost shsh]# find /var -user "root" -group "mail"
+/var/spool/mqueue
+/var/spool/mail
+
+2、查找/usr目录下不属于root,bin 或者student 的文件
+
+ find /usr -not -user "root" -not -user "bin"
+
+
+3、查找/etc/目录下最近一周内内容修改过且不属于root及studne的用户的文件
+ find /etc -ctime -7 -not \( -user root -o -user cms \);
+
+4、查找当前系统上没有属主或属组且最近1天内曾访问过的文件，并将其属主属组均修改为root
+
+find ./ -nouser -nogroup -ctime -1 -exec chown root:root {} \;
+
+5、查找/etc/目录下大于 1M的文件，并将其文件名写入/tmp/etc.langefiles 文件中
+
+ find /etc -size +1M -exec echo {} >> /tmp/etc.langfiles \;
+
+6、查找/etc目录下所有用户都没有写权限的文件，显示出详细信息;
+
+ find /etc -not -perm -222 -ls
+
+
+
+
+
+xargs
+[root@localhost pcre-8.34]# xargs --help
+Usage: xargs [-0prtx] [--interactive] [--null] [-d|--delimiter=delim]
+       [-E eof-str] [-e[eof-str]]  [--eof[=eof-str]]
+       [-L max-lines] [-l[max-lines]] [--max-lines[=max-lines]]
+       [-I replace-str] [-i[replace-str]] [--replace[=replace-str]]
+       [-n max-args] [--max-args=max-args]
+       [-s max-chars] [--max-chars=max-chars]
+       [-P max-procs]  [--max-procs=max-procs]
+       [--verbose] [--exit] [--no-run-if-empty] [--arg-file=file]
+       [--version] [--help] [command [initial-arguments]]
+
+find /etc -size +1M xargs echo {} >> /tmp/etc.largefiles 使用空格追加的文本。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

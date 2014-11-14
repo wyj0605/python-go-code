@@ -1,0 +1,89 @@
+安装PAM模块
+yum install pam-devel
+
+tar xvf pam_mysql-0.7RC1.tar
+cd 
+ ./configure --with-mysql=/usr/local/mysql --with-openssl
+make && make install
+
+在mysql里创建表。并创建用户
+mysql
+create database vsftp;
+grant select on vsftp.* to vsftpd@localhost identified by 'vsftpd';
+grant select on vsftp.* to vsftpd@127.0.0.1 identified by 'vsftpd';
+mysql> use vsftp;
+Database changed
+create table users (
+id int AUTO_INCREMENT NOT NULL,
+name char(20) binary not null,
+passwd char(48) binary not null,
+ primary key(id)
+);
+insert into users (name,passwd) values ('wang','wang');
+insert into users (name,passwd) values ('jun','jun');
+
+
+vim /etc/pam.d/vsftpd.mysql
+
+auth required /lib/security/pam_mysql.so user=vsftpd passwd=vsftpd host=localhost db=vsftp table=users usercolumn=name passwdcolumn=passwd crypt=0
+account required /lib/security/pam_mysql.so user=vsftpd passwd=vsftpd host=localhost db=vsftp table=users usercolumn=name passwdcolumn=passwd crypt=0
+
+useradd -s /sbin/nologin -d /var/ftproot vuser  #虚拟映射用户
+chmod go+rx /var/ftproot
+
+/etc/vsftpd/vsftpd.conf
+anonymous_enable=YES
+local_enable=YES
+write_enable=YES
+local_umask=022
+anon_upload_enable=YES
+anon_mkdir_write_enable=YES
+anon_other_write_enable=YES
+dirmessage_enable=YES
+xferlog_file=/var/log/vsftpd.log
+xferlog_std_format=YES
+xferlog_enable=YES
+connect_from_port_20=YES
+chown_uploads=YES
+xferlog_std_format=YES
+#chroot_local_user=YES
+#chroot_list_enable=YES
+#chroot_list_file=/etc/vsftpd/chroot_list
+listen=YES
+userlist_enable=YES
+
+user_config_dir=/etc/vsftpd/vusers #精确控制每个用户的权限
+guest_enable=YES #启
+guest_username=vuser
+pam_service_name=vsftpd.mysql
+
+tcp_wrappers=YES
+
+
+
+useradd admin
+echo "admin" | passwd --stdin admin
+
+
+
+
+
+
+yum install vsfptd
+
+rpm -ql vsftpd
+
+[root@www ~]# finger ftp
+Login: ftp                              Name: FTP User
+Directory: /var/ftp                     Shell: /sbin/nologin
+Never logged in.
+No mail.
+No Plan.
+
+
+ftp 192.168.0.4
+
+anonymous
+
+man vsftpd.conf
+

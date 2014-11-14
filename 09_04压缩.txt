@@ -1,0 +1,81 @@
+压缩、解压缩命令
+压缩格式：gz,bz2,xz,zip Z
+
+压缩算法：算法不同，压缩比会不同
+
+
+compress:FILENAME.Z
+
+uncompress
+
+gzip : .gz  不能压缩目录，压缩后会删除原文件
+	-#： 1-9 默认为6
+	gzip /path/to/file
+gunzip :  解压完成后会删除
+	gunzip /path/to/file
+	
+zcat /path/to/file.gz 不解压的情况，查看文本文件的内容
+
+bzip2: .bz2
+比gzip有着更大的压缩比，使用格式相同
+	bzip2 /path/to/file 时也会删除原文件
+	-k 压缩时保留原文件
+	bunzip2 /file.bz2 解压缩文件
+	bzcat
+
+
+xz : .xz
+
+
+zip : 既归档又压缩的工具
+
+zip test.zip file1 file2
+
+
+tar : 归档工具
+	-c ：创建归档文件
+	-f file.tar ：操作的归档文件
+	-x : 展开归档
+	--xattrs : 归档时，保留文件的扩展属性信息
+	-t : 不展开归档，直接查看归档了哪些文件
+	
+	-zcf : 调用gzip归档压缩
+	-zxf : 调用gzip解压缩并展开归档
+
+
+cpio : 归档工具
+
+
+
+read :
+	-p "user input" A B
+	-t 超时默认值
+[ -z $A ] && A=100
+[root@localhost shsh]# more sumj.sh
+#!/bin/bash
+#默认值-t 5超过5秒后自动添加数据
+read -t 5 -p "input two intergers " A B
+[ -z $A ] && A=100
+[ -Z $B ] && B=1000
+
+
+echo "$A plus $B : $[$A+$B]"
+[root@localhost shsh]#
+
+
+
+while condition ; do
+	statement 
+done
+
+[root@localhost shsh]# more whilesum.sh
+#/bin/bash
+declare -i I=1
+declare -i SUM=0
+
+while [ $I -le 100 ]; do
+        let SUM+=$I
+        let I++
+done
+
+echo "$SUM"

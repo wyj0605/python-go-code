@@ -1,0 +1,298 @@
+MBR : 主引导记录512K
+
+
+
+
+ln [-s -v] SRC DEST
+
+硬链接
+	1、只能对文件创建，不能应用于目录
+	2、不能跨文件系统
+	3、创建硬链接会增加文件被链接的次数
+
+符号链接
+
+	1、可应用于目录
+	2、可以跨文件系统
+	3、不会增加被链接文件的链接的次数
+	4、其大小为指定的路径所包含的字符个数
+
+du ：显示文件占用的磁盘空间大小
+	du -s 显示目录大小 
+	du -sh 显示详细大小
+
+
+df ：显示磁盘整个空间的大小
+
+[root@localhost shsh]# df -h
+文件系统              容量  已用 可用 已用% 挂载点
+/dev/mapper/VolGroup00-LogVol00
+                       18G  7.0G   10G  42% /
+/dev/sda1              99M   12M   82M  13% /boot
+tmpfs                 135M     0  135M   0% /dev/shm
+
+[root@localhost shsh]# df -hP   放在同一行显示不换行P
+文件系统              容量  已用 可用 已用% 挂载点
+/dev/mapper/VolGroup00-LogVol00   18G  7.0G   10G  42% /
+/dev/sda1              99M   12M   82M  13% /boot
+tmpfs                 135M     0  135M   0% /dev/shm
+
+
+
+设备文件
+	块设备 b : 按块为单位，随机访问的设备
+	字符设备 c ：按字符为单位，线性设备
+
+	b : 硬盘
+	c ：键盘
+
+/dev 
+	主设备文件(major number)
+		标识设备类型
+	次设备号
+		标识同一种类型中不同设备
+
+硬盘设备的设备文件名：
+IDE,ATA: sd
+SATA: sd
+SCSI: sd
+USB: sd
+	a,b,c,.....来区别同一种类型下的不同
+
+IDE:
+	第一个IDE口：主、从
+		/dev/hda ,/hdv/hdb
+	第二个IDE口：主、从
+		/dev/hdc, /dev/hdd
+sda,sdb,sdc
+
+
+hda:
+	hda1 第一个分区
+	hda2 第二个分区
+
+
+	hda2 第一个逻辑分区
+
+
+[root@localhost shsh]# fdisk -l
+
+Disk /dev/sda: 21.4 GB, 21474836480 bytes
+255 heads, 63 sectors/track, 2610 cylinders
+Units = cylinders of 16065 * 512 = 8225280 bytes
+
+   Device Boot      Start         End      Blocks   Id  System
+/dev/sda1   *           1          13      104391   83  Linux
+/dev/sda2              14        2610    20860402+  8e  Linux LVM
+[root@localhost shsh]#
+
+mkfs 格式化文件系统
+
+
+VFS :Virtual FileSystem  虚拟文件系统
+
+管理磁盘分区：
+	fdisk /dev/sda
+	p:显示当前硬件的分区，包括没有保存的改动
+	n：创建新分区
+		e：扩展分区 
+		p：主分区 
+	w：保存退出
+	q:不保存退出
+	t：修改分区类型
+	l:支持的分区的类型 
+mknod
+
+
+
+
+
+
+mkfs : make file system
+
+文件系统类型:
+	ext2
+	ext3
+	-t FSTYPE指定文件系统类型
+
+
+
+mkfs -t ext3 =mkfs.ext3
+	
+
+当前内核支持的文件系统
+[root@localhost shsh]# cat /proc/filesystems
+nodev   sysfs
+nodev   rootfs
+nodev   bdev
+nodev   proc
+nodev   cpuset
+nodev   binfmt_misc
+nodev   debugfs
+nodev   securityfs
+nodev   sockfs
+nodev   usbfs
+nodev   pipefs
+nodev   anon_inodefs
+nodev   futexfs
+nodev   tmpfs
+nodev   inotifyfs
+nodev   eventpollfs
+nodev   devpts
+        ext2
+nodev   ramfs
+nodev   hugetlbfs
+        iso9660
+nodev   mqueue
+        ext3
+nodev   rpc_pipefs
+nodev   autofs
+nodev   nfsd
+
+专门管理ext系统文件
+
+mke2fs
+	-j :创建ext3类型文件系统
+	-b BLOCK_SIZE:指定块大小，默认为4096：默认取值为4096,可用取值为1024、2048、4096
+	-L LABEL ：指定分区卷标
+	-m # ：指定预留给超级用的块数百分比
+	-i # : 用于指定为多少字节的空间创建一个inode，默认为8192，
+
+[root@localhost shsh]# mke2fs -help
+mke2fs：无效选项 -- h
+Usage: mke2fs [-c|-t|-l filename] [-b block-size] [-f fragment-size]
+        [-i bytes-per-inode] [-j] [-J journal-options] [-N number-of-inodes]
+        [-m reserved-blocks-percentage] [-o creator-os] [-g blocks-per-group]
+        [-L volume-label] [-M last-mounted-directory] [-O feature[,...]]
+        [-r fs-revision] [-R options] [-qvSV] device [blocks-count]
+
+blkid :查询或查看磁盘设备的相关属性
+	UUID
+	TYPE
+	LABEL
+
+
+
+
+e2lable ：用于查看或定义卷标
+	e2label 设备文件  卷标 ： 设定卷标
+
+tune2fs :调整文件系统 的相关属性
+	-j:不损害原有数据，将ext2升级为ext3
+	-L LABEL :设定或修改卷标
+	-m # ：调整预留百分比
+	-r # : 指定预留块数：
+	-o ：设定默认挂载选项
+	-c # ：指定挂载次数达到#次之后进行自检，0或-1表关闭此功能
+	-i # : 每挂载使用多少天后午行自检，0或-1表关闭此功能
+	-l : 显示超级块信息
+
+dumpe2fs :显示文件属性信息
+	dumpe2fs -h /dev/sda1   显示超级块信息
+
+
+[root@localhost shsh]# tune2fs -l /dev/sda2
+tune2fs 1.39 (29-May-2006)
+tune2fs: Bad magic number in super-block while trying to open /dev/sda2
+Couldn't find valid filesystem superblock.
+[root@localhost shsh]# tune2fs -l /dev/sda1
+tune2fs 1.39 (29-May-2006)
+Filesystem volume name:   /boot
+Last mounted on:          <not available>
+Filesystem UUID:          4d25f7e8-7b37-4921-b80b-35bab452a8ea
+Filesystem magic number:  0xEF53
+Filesystem revision #:    1 (dynamic)
+Filesystem features:      has_journal ext_attr resize_inode dir_index filetype needs_recovery sparse_super
+Default mount options:    user_xattr acl
+Filesystem state:         clean
+Errors behavior:          Continue
+Filesystem OS type:       Linux
+Inode count:              26104
+Block count:              104388
+Reserved block count:     5219
+Free blocks:              88908
+Free inodes:              26069
+First block:              1
+Block size:               1024
+Fragment size:            1024
+Reserved GDT blocks:      256
+Blocks per group:         8192
+Fragments per group:      8192
+Inodes per group:         2008
+Inode blocks per group:   251
+Filesystem created:       Sun Feb 23 19:48:40 2014
+Last mount time:          Thu Feb 27 05:30:26 2014
+Last write time:          Thu Feb 27 05:30:26 2014
+Mount count:              11
+Maximum mount count:      -1
+Last checked:             Sun Feb 23 19:48:40 2014
+Check interval:           0 (<none>)
+Reserved blocks uid:      0 (user root)
+Reserved blocks gid:      0 (group root)
+First inode:              11
+Inode size:               128
+Journal inode:            8
+Default directory hash:   tea
+Directory Hash Seed:      3e79039b-ee28-4b28-801a-e3502efe341e
+Journal backup:           inode blocks
+
+fsck ：检查并修复linux文件系统 
+	-t FSTYPE:指定文件系统类型 
+	-a ：自动修复
+
+
+
+e2fsck 检查修复ext2 或 ext3 文件系统
+
+	-a ：自动修复
+	-f : 强制检查
+	
+
+
+
+mount : 挂载
+
+mount 设备 挂载点
+
+mount 显示当前挂载的文件系统
+
+mount [options] [-o options] DEVICE MOUNT POINT 
+	-a 表示挂载/etc/fstab文件中定义的所有文件系统
+	-n 默认情况下，命令每挂载一个设备，都会把挂载的设备信息保存至/etc/mtab 文件中，-N就不写入
+	-t 文件系统类型，不使用些命令时，mount 会调用blkid 命令获取对应文件系统 的类型
+	-r 只读挂载
+	-w 读写挂载
+	-o 指定额外的挂载选项，也即指定文件系统启用的属性
+	remount ： 重新挂载当前文件系统
+	sync 同步写入
+	-o loop ：挂载本地圆环设备。ISO文件
+
+
+mkswap  /dev/sda
+	-l
+	创建交换分区
+swapon /dev/sda8 启用交换分区
+
+swapoff /dev/sda8 关闭交换分区
+
+
+dd if=/dev/zero of=/var/swapfile seek=1023 bs=1M count=1
+	if=数据来源
+	of=数据存储目标
+	bs=1
+	count=2
+	seek=# 创建数据文件时，跳过空间大小
+
+
+fuser -v /mnt/test 
+要挂载的设备	挂载点	文件系统类型	挂载选项	转储步率（每多少天做一次完全备份）	文件系统检查顺序 
+/dev/sda5	/mnt/test	ext3	defaults 	0					0
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,24 @@
+haproxy 标签: hapr 
+顶[1] 分享到 发表评论(0) 编辑词条   
+腾讯微博
+ 
+开心001
+ 
+人人网
+ 
+新浪微博
+ 简介
+HAProxy提供高可用性、负载均衡以及基于TCP和HTTP应用的代 理，支持虚拟主机，它是免费、快速并且可靠的一种解决方案。HAProxy特别适用于那些负载特大的web站点，这些站点通常又需要会话保持或七层处理。HAProxy运行在当前的硬件上，完全可以支持数以万计的并发连接。并且它的运行模式使得它可以很简单安全的整合进您当前的架构中， 同时可以保护你的web服务器不被暴露到网络上。 HAProxy实现了一种事件驱动, 单一进程模型，此模型支持非常大的并发连接数。多进程或多线程模型受内存限制 、系统调度器限制以及无处不在的锁限制，很少能处理数千并发连接。事件驱动模型因为在有更好的资源和时间管理的用户端(User-Space) 实现所有这些任务，所以没有这些问题。此模型的弊端是，在多核系统上，这些程序通常扩展性较差。这就是为什么他们必须进行优化以 使每个CPU时间片(Cycle)做更多的工作。?
+安装
+tar zxvf haproxy-1.4.8.tar.gz cd haproxy-1.4.8 uname -a //查看linux内核版本 make TARGET=linux26 PREFIX=/usr/local/haproxy make install PREFIX=/usr/local/haproxy
+配置
+配置HAProxy Session亲缘性的三种方式 haproxy负载均衡保持客户端和服务器Session亲缘性的三种方式: 1 用户IP 识别 haproxy 将用户IP经过hash计算后 指定到固定的真实服务器上（类似于nginx 的IP hash 指令）配置指令 balance source 2 cookie 识别 haproxy 将WEB服务端发送给客户端的cookie中插入(或添加加前缀)haproxy定义的后端的服务器COOKIE ID。配置指令例举 cookie SESSION_COOKIE insert indirect nocache 用firebug可以观察到用户的请求头的cookie里 有类似" Cookie jsessionid=0bc588656ca05ecf7588c65f9be214f5; SESSION_COOKIE=app1" SESSION_COOKIE=app1就是haproxy添加的内容 3 session 识别 haproxy 将后端服务器产生的session和后端服务器标识存在haproxy中的一张表里。客户端请求时先查询这张表。配置指令例举 appsession JSESSIONID len 64 timeout 5h request-learn 配置举例： #vi /usr/local/haproxy/haproxy.cfg backend COOKIE_srv mode http cookie SESSION_COOKIE insert indirect nocache server REALsrv_70 184.82.239.70:80 cookie 11 check inter 1500 rise 3 fall 3 weight 1 server REALsrv_120 220.162.237.120:80 cookie 12 check inter 1500 rise 3 fall 3 weight 1 backend SOURCE_srv mode http balance source server REALsrv_70 184.82.239.70:80 cookie 11 check inter 1500 rise 3 fall 3 weight 1 server REALsrv_120 220.162.237.120:80 cookie 12 check inter 1500 rise 3 fall 3 weight 1 backend APPSESSION_srv mode http appsession JSESSIONID len 64 timeout 5h request-learn server REALsrv_70 184.82.239.70:80 cookie 11 check inter 1500 rise 3 fall 3 weight 1 server REALsrv_120 220.162.237.120:80 cookie 12 check inter 1500 rise 3 fall 3 weight 1
+启动
+#启动haproxy /usr/local/haproxy/haproxy -f /usr/local/haproxy/haproxy.cfg #查看是否启动 [zhangy@BlackGhost haproxy]$ ps -e|grep haproxy 4859 ? 00:00:00 haproxy 4860 ? 00:00:00 haproxy
+测试
+[root@BlackGhost haproxy]# /usr/local/bin/webbench -c 100 -t 30 http://localhost:1080/phpinfo.php
+说明
+HAProxy监听的端口是1080，代理192.168.18.2:10000，127.0.0.1:10000 统计监听的是8888端口 http://localhost:8888/haproxy-stats
+版本发布
+2012年12月28日 : HAproxy 1.5-dev17 发布。 2012年05月15日，HAproxy 1.5.0 dev10 发布。 2012年05月22日，HAproxy 1.4.21 发布，Web负载均衡。 2012年06月04日，HAproxy 1.5 dev11 发布，该版本修复了 dev8 的很多 bug ，合并和一些新特性，包括服务器的软起动和停止，同时增加选项用于对整个 URI 进行哈希而不只是路径，同时增加选项用于当主服务器恢复时停止备用服务器的功能等等，如果你正在使用 dev8 请立即升级。 2012年08月23日，HAproxy 1.4.22 发布，Web负载均衡。 2012年09月10日，HAproxy 1.5 dev12 发布。 2012年09月11日，HAproxy 1.5.0 dev12 发布，该版本最主要的是增加客户端和服务器端的原生 SSL 支持，其他方面包括新的 ACL 和模式，支持老的 Linux 内核上的 IPv6 透明模式，可通过 nice 关键字来修改会话的调度优先级等等。 2012年11月22日，HAproxy 1.5.0 dev13 发布。 2012年12月24日，HAproxy 1.5.0 dev15 发布。 2012年12月28日，HAproxy 1.5.0 dev17 发布。 
+

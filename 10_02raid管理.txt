@@ -1,0 +1,170 @@
+[root@localhost /]# mdadm -S /dev/md0
+mdadm: stopped /dev/md0
+[root@localhost /]# fdisk /dev/sdb
+
+Command (m for help): m
+Command action
+   a   toggle a bootable flag
+   b   edit bsd disklabel
+   c   toggle the dos compatibility flag
+   d   delete a partition
+   l   list known partition types
+   m   print this menu
+   n   add a new partition
+   o   create a new empty DOS partition table
+   p   print the partition table
+   q   quit without saving changes
+   s   create a new empty Sun disklabel
+   t   change a partition's system id
+   u   change display/entry units
+   v   verify the partition table
+   w   write table to disk and exit
+   x   extra functionality (experts only)
+
+Command (m for help): d
+Selected partition 1
+
+Command (m for help): 1
+1: unknown command
+Command action
+   a   toggle a bootable flag
+   b   edit bsd disklabel
+   c   toggle the dos compatibility flag
+   d   delete a partition
+   l   list known partition types
+   m   print this menu
+   n   add a new partition
+   o   create a new empty DOS partition table
+   p   print the partition table
+   q   quit without saving changes
+   s   create a new empty Sun disklabel
+   t   change a partition's system id
+   u   change display/entry units
+   v   verify the partition table
+   w   write table to disk and exit
+   x   extra functionality (experts only)
+
+Command (m for help): n
+Command action
+   e   extended
+   p   primary partition (1-4)
+p
+Partition number (1-4): 1
+First cylinder (1-130, default 1): 
+Using default value 1
+Last cylinder or +size or +sizeM or +sizeK (1-130, default 130): 20
+
+Command (m for help): n
+Command action
+   e   extended
+   p   primary partition (1-4)
+p
+Partition number (1-4): 2   
+First cylinder (21-130, default 21): 20
+Value out of range.
+First cylinder (21-130, default 21): 
+Using default value 21
+Last cylinder or +size or +sizeM or +sizeK (21-130, default 130): 20
+Value out of range.
+Last cylinder or +size or +sizeM or +sizeK (21-130, default 130): 40
+
+Command (m for help): n
+Command action
+   e   extended
+   p   primary partition (1-4)
+p
+Partition number (1-4): 3       
+First cylinder (41-130, default 41): 
+Using default value 41
+Last cylinder or +size or +sizeM or +sizeK (41-130, default 130): 60
+
+Command (m for help): w
+The partition table has been altered!
+
+Calling ioctl() to re-read partition table.
+Syncing disks.
+[root@localhost /]# fdisk -l
+
+Disk /dev/sda: 21.4 GB, 21474836480 bytes
+255 heads, 63 sectors/track, 2610 cylinders
+Units = cylinders of 16065 * 512 = 8225280 bytes
+
+   Device Boot      Start         End      Blocks   Id  System
+/dev/sda1   *           1          13      104391   83  Linux
+/dev/sda2              14        2610    20860402+  8e  Linux LVM
+
+Disk /dev/sdb: 1073 MB, 1073741824 bytes
+255 heads, 63 sectors/track, 130 cylinders
+Units = cylinders of 16065 * 512 = 8225280 bytes
+
+   Device Boot      Start         End      Blocks   Id  System
+/dev/sdb1               1          20      160618+  83  Linux
+/dev/sdb2              21          40      160650   83  Linux
+/dev/sdb3              41          60      160650   83  Linux
+
+Disk /dev/sdc: 1073 MB, 1073741824 bytes
+255 heads, 63 sectors/track, 130 cylinders
+Units = cylinders of 16065 * 512 = 8225280 bytes
+
+   Device Boot      Start         End      Blocks   Id  System
+[root@localhost /]# mdadm -C /dev/md0 -a yes -n 2 -l 1 /dev/sdb{1,2}
+mdadm: array /dev/md0 started.
+[root@localhost /]# cat /proc/mdstat 
+Personalities : [raid0] [raid1] 
+md0 : active raid1 sdb2[1] sdb1[0]
+      160512 blocks [2/2] [UU]
+      
+unused devices: <none>
+[root@localhost /]# mke2fs -j /dev/md0
+mke2fs 1.39 (29-May-2006)
+Filesystem label=
+OS type: Linux
+Block size=1024 (log=0)
+Fragment size=1024 (log=0)
+40160 inodes, 160512 blocks
+8025 blocks (5.00%) reserved for the super user
+First data block=1
+Maximum filesystem blocks=67371008
+20 block groups
+8192 blocks per group, 8192 fragments per group
+2008 inodes per group
+Superblock backups stored on blocks: 
+        8193, 24577, 40961, 57345, 73729
+
+Writing inode tables: done                            
+Creating journal (4096 blocks): done
+Writing superblocks and filesystem accounting information: done
+
+This filesystem will be automatically checked every 38 mounts or
+180 days, whichever comes first.  Use tune2fs -c or -i to override.
+[root@localhost /]# mount /dev/md0 /md0
+[root@localhost /]# cp /etc/inittab /md0
+[root@localhost /]# mdadm /dev/md0 -f /dev/sdb1
+mdadm: set /dev/sdb1 faulty in /dev/md0
+[root@localhost /]# mdadm --detail /dev/md0
+/dev/md0:
+        Version : 0.90
+  Creation Time : Sun Mar  9 11:48:33 2014
+     Raid Level : raid1
+     Array Size : 160512 (156.78 MiB 164.36 MB)
+  Used Dev Size : 160512 (156.78 MiB 164.36 MB)
+   Raid Devices : 2
+  Total Devices : 2
+Preferred Minor : 0
+    Persistence : Superblock is persistent
+
+    Update Time : Sun Mar  9 11:50:32 2014
+          State : clean, degraded
+ Active Devices : 1
+Working Devices : 1
+ Failed Devices : 1
+  Spare Devices : 0
+
+           UUID : 5437664c:f9f3ef47:bc55fd7d:c83b8a3c
+         Events : 0.6
+
+    Number   Major   Minor   RaidDevice State
+       0       0        0        0      removed
+       1       8       18        1      active sync   /dev/sdb2
+
+       2       8       17        -      faulty spare   /dev/sdb1

@@ -1,0 +1,37 @@
+case
+
+#!/bin/bash
+
+case $! in
+[0-9])
+	echo "lower" ;;
+
+[a-z])
+	echo "big" ;;
+esac
+
+
+
+#!/bin/bash
+
+case $! in
+'start')
+	echo "lower" ;;
+
+'stop')
+	echo "big" ;;
+*)
+	echo "`basename $0` {start | stop }" ;;
+esac
+
+[root@localhost shsh]# more case-v.sh
+#!/bin/bash
+DEBUG=0
+case $1 in
+-v|--verbose)
+        DEBUG=1
+;;
+esac
+
+useradd tom &> /dev/null
+[ $DEBUG -eq 1 ] && echo "add user tom finished"

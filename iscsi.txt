@@ -1,0 +1,107 @@
+<target iqn.2014.06.com.wyj:tsan.disk1>
+        <backing-store /dev/sdb>
+        vendor_id wyj
+        lun 1
+        </backing-store>
+        initator-address 192.168.0.0/24
+        incominguser    wyj wyj
+</target>
+tgtadm --lld iscsi --mode target --op new --targetname iqn.2014.06.com.wyj:tsan.disk1 --tid1~
+tgtadm --lld iscsi --mode target --op bind --tid 1 --initiator-address 192.168.0.0/24
+
+tgtadm --lld iscsi --mode account --op bind --tid 1 --user wyj
+tgtadm --lld iscsi --mode target --op show
+
+
+yum install scsi-target-utils
+
+
+
+
+
+tgtadm --lld iscsi --mode account --op new --user wyj1 --password wangyijunwangyijun
+-bash-3.2# tgtadm --lld iscsi --mode account --op bind --tid 1 --user wyj1
+
+
+
+
+
+
+
+-bash-3.2# alias ha='for I in {1..3}; do'
+-bash-3.2# ha ssh node$I 'echo "InitiatorName='iscsi-iname -p iqn.2014-05.com.wyj'" > /etc/iscsi/initiatorname.iscsi';done
+
+
+
+
+[root@node2 ~]# iscsiadm -m discovery -t st -p 192.168.0.2
+192.168.0.2:3260,1 iqn.2014.06.com.wyj:tsan.disk1
+[root@node2 ~]# iscsiadm -m node -T  iqn.2014.06.com.wyj:tsan.disk1 -p 192.168.0.2 -l
+Logging in to [iface: default, target: iqn.2014.06.com.wyj:tsan.disk1, portal: 192.168.0.2,3260]
+Login to [iface: default, target: iqn.2014.06.com.wyj:tsan.disk1, portal: 192.168.0.2,3260]: successful
+
+"/etc/iscsi/iscsid.conf" 
+
+
+# to CHAP. The default is None.
+node.session.auth.authmethod = CHAP
+
+# To set a CHAP username and password for initiator
+# authentication by the target(s), uncomment the following lines:
+node.session.auth.username = wyj
+node.session.auth.password = wyj
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+tgtadm --lld iscsi --mode target --op new --targetname iqn.2014-05.com.wyj:teststore.disk1 --tid 1
+[root@localhost ~]# tgtadm --lld iscsi --mode taget --op show
+
+
+
+tgtadm --lld iscsi --mode logicalunit --op new --tid 1 --lun 1 --backing-store /dev/sdb
+
+
+
+tgtadm --lld iscsi --mode target --op bind --tid 1 --initiator-address 192.168.0.0/24
+
+
+
+tgtadm --lld iscsi --op new --mode account --user scott --password tiger
+
+
+
+<target iqn.2014-05.com.wyj:teststore.disk1>
+        backing-store /dev/sdb
+        lun 1
+        incominguser wyj wangyijun0605
+        initiator-address 192.168.0.1
+        discovery.sendtargets.auth.username = wyj 
+        discovery.sendtargets.auth.password = wangyijun 
+        node.session.auth.username = wyj
+        node.session.auth.password = wangyijun
+</target>
+
+检查系统是否安装 scsi-target  
+//用来将Linux 系统模拟成为iSCSI target 的功能,也就是常说的软iscsi target. 
+# rpm -qa | grep scsi  
+scsi-target-utils-1.0.14-4.el6.x86_64 
+ 
+iscsi target 配置文档与管理程序 
+ 
+/etc/tgt/targets.conf   主配置文档，设置要分享的磁盘 
+/usr/sbin/tgt-admin     线上查询、删除target 等功能的管理工具； 
+/usr/sbin/tgt-setup-lun 建立target 以及设置分享的磁盘与可使用的用户端等工具软体。 
+/usr/sbin/tgtadm        手动直接管理的管理员工具(可使用配置文档取代)； 
+/usr/sbin/tgtd          主要提供iSCSI target 服务的主程式； 
+/usr/sbin/tgtimg        建置预计分享的映像档装置的工具(以映像档模拟磁盘) 
