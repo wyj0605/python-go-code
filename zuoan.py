@@ -77,7 +77,6 @@ def open1(url1):
            #print content
            return content
 
-
 def urlzs():
     for k in range(1,50):
            url="http://www.zreading.cn/page/"+str(k)
@@ -86,7 +85,6 @@ def urlzs():
            content=open1(url)
            soup=BeautifulSoup(content)
            cl=str(soup.find('div',{"id":"content"}))
-
            reg=r'http://.*?\.html'
            cl=re.compile(reg).findall(cl)
            for i in cl:
