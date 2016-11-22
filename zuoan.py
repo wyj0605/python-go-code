@@ -10,8 +10,7 @@ import datetime
 qq = Queue.Queue()
 q = Queue.Queue()
 type2 = sys.getfilesystemencoding()
-def filter_tags(htmlstr):
-	#先过滤CDATA
+def filter_tags(htmlstr):	#先过滤CDATA
     re_cdata=re.compile('//<!\[CDATA\[[^>]*//\]\]>',re.I) #匹配CDATA
     re_script=re.compile('<\s*script[^>]*>[^<]*<\s*/\s*script\s*>',re.I)#Script
     re_style=re.compile('<\s*style[^>]*>[^<]*<\s*/\s*style\s*>',re.I)#style
