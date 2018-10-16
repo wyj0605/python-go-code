@@ -1,7 +1,4 @@
-import requests
-import re
-import sys
-
+import requests,re,sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
 from requests.packages.urllib3.exceptions import ConnectionError
@@ -13,13 +10,11 @@ headers = {
     'Referer': 'http://maoyan.com/board/4?'
 }
 
-
 def get_proxy():
     try:
         t = requests.get("http://10.10.1.204:80/get")
         if 200 == t.status_code:
             proxy = {'http': t.text}
-            # print proxy
             return proxy
         return None
     except ConnectionError:
@@ -38,4 +33,3 @@ for i in range(1, 10):
         t = item[0] + item[1].split()[0] + item[2]
         with open('1.txt', 'a') as f:
             f.write(t + '\n')
-
