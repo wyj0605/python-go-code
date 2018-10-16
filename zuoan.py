@@ -46,7 +46,8 @@ def listurl():
     if cl :
            content=urllib.urlopen(cl).read()
            soup=BeautifulSoup(content,"lxml")
-           title=str(soup.html.title)
+           title=str(soup.html.title).get_text()
+	   print title
            title="<h1>"+((filter_tags(title)).split('|'))[0]+"</h1>"
            cl=str(soup.find('div',{"class":"grap"}))
            c3=c2(cl)
@@ -54,7 +55,6 @@ def listurl():
            fname="/zuoan.html"
            fp=open(fname,'a')
            fp.write(title)
-           print title
            fp.write(c3)
            fp.close()
            lock.release() #释放锁
