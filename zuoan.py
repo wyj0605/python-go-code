@@ -29,12 +29,11 @@ def filter_tags(htmlstr):	#先过滤CDATA
 def c2(cl):
            reg=r'http://.*?\.html/2'         
            c1l=list(set(re.compile(reg).findall(cl)))
-           #if isinstance(c1l,list):
            if c1l:
                 for pp in c1l:
                     content=urllib.urlopen(pp)
                     content=content.read()
-                    soup=BeautifulSoup(content)
+                    soup=BeautifulSoup(content,"lxml")
                     ct=str(soup.find('div',{"class":"entry-content"}))
                     ct=cl+ct
                     return ct
@@ -46,15 +45,14 @@ def listurl():
     global lock
     if cl :
            content=urllib.urlopen(cl).read()
-           soup=BeautifulSoup(content)
+           soup=BeautifulSoup(content,"lxml")
            title=str(soup.html.title)
            title=((filter_tags(title)).split('|'))[0]
            title="<h1>"+title+"</h1>"
-           cl=str(soup.find('div',{"class":"entry-content"}))
+           cl=str(soup.find('div',{"class":"grap"}))
            c3=c2(cl)
            lock.acquire() #创建锁
-           fname="d://temp//2016-2-2" \
-                 ".html"
+           fname="/zuoan.html"
            fp=open(fname,'a')
            fp.write(title)
            print title
@@ -62,9 +60,7 @@ def listurl():
            fp.close()
            lock.release() #释放锁
 
-
 def open1(url1):
-                  
            headers = {  
                 'User-Agent':'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6'  
            }  
@@ -73,19 +69,19 @@ def open1(url1):
                 headers = headers  
           )  
            content = urllib2.urlopen(req).read()
-           #print content
            return content
 
 def urlzs():
-    for k in range(1,50):
+    for k in range(1,5):
            url="http://www.zreading.cn/page/"+str(k)
            qq.put(url)
            print url
            content=open1(url)
-           soup=BeautifulSoup(content)
-           cl=str(soup.find('div',{"id":"content"}))
+           soup=BeautifulSoup(content,"lxml")
+           cl=str(soup.find('div',{"class":"layoutMultiColumn--primary"}))
            reg=r'http://.*?\.html'
            cl=re.compile(reg).findall(cl)
+	   print cl
            for i in cl:
                    q.put(i)
            for k in range(10):
