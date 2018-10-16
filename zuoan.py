@@ -34,7 +34,7 @@ def c2(cl):
                     content=urllib.urlopen(pp)
                     content=content.read()
                     soup=BeautifulSoup(content,"lxml")
-                    ct=str(soup.find('div',{"class":"entry-content"}))
+                    ct=str(soup.find('div',{"class":"grap"}))
                     ct=cl+ct
                     return ct
            else:
@@ -47,8 +47,7 @@ def listurl():
            content=urllib.urlopen(cl).read()
            soup=BeautifulSoup(content,"lxml")
            title=str(soup.html.title)
-           title=((filter_tags(title)).split('|'))[0]
-           title="<h1>"+title+"</h1>"
+           title="<h1>"+((filter_tags(title)).split('|'))[0]+"</h1>"
            cl=str(soup.find('div',{"class":"grap"}))
            c3=c2(cl)
            lock.acquire() #创建锁
@@ -81,7 +80,6 @@ def urlzs():
            cl=str(soup.find('div',{"class":"layoutMultiColumn--primary"}))
            reg=r'http://.*?\.html'
            cl=re.compile(reg).findall(cl)
-	   print cl
            for i in cl:
                    q.put(i)
            for k in range(10):
