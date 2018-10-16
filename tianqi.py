@@ -40,7 +40,7 @@ def weather():
 		m2=r1+f2+w2+wind2+"\n"
 		wanbi=u"播报完毕，祝您心情愉快。"
 		title=u"天气预报: "
-		t=city+date1+weather_day+temp+pm25+wind+m1+m2
+		t=city+date1+weather_day+temp+pm25+wind+m1+m2+chuanyi+xiche+yundong
 	#	wx1(title,t)
 		print t
 		#file='http://tsn.baidu.com/text2audio?tex='+t.encode("utf-8")+'&lan=zh&per=0&cuid=00-E0-4C-13-DC-A9&ctp=1&tok='+get_token() #文字转语音
