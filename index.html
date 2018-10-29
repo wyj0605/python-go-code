@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>阿里云CDN流量情况</title>
+	<meta charset="utf-8">
+    <script src="jquery-1.10.2.min.js"></script>
+    <script src="echarts.js"></script>
+    <script src="dark.js"></script>
+
+<style>
+.zh{
+background:#96b97d;float:left;width:1200px;
+border-radius:5px 5px 0 0;
+}
+.bt{
+line-height:35px;float:left;padding-left:50px;
+font-size:18px;
+text-align:center;
+}
+a{color: #000;text-decoration: none;}
+a:hover{color: #FFF;text-decoration:none;}
+.main{
+width: 1200px;
+margin: 0 auto;
+}
+body{padding:0;margin:0;}
+</style>
+
+</head>
+<body>
+<div class='main'>
+<div class='zh'>
+	<div id="clickt" class='bt'>阿里实时流量</div>
+	<div id="clicky" class='bt'>阿里昨天流量</div>
+	<div id="click7" class='bt'>阿里七天流量</div>
+	<div id="clickbaidu" class='bt'>百度实时流量</div>
+	<div id="clickbaiduy" class='bt'>百度昨天流量</div>
+	<div id="clickbaidu7" class='bt'>百度七天流量</div>
+	<div class='bt'><a href="http://10.10.1.204/test.html" target="self">新闻访问量</a></div>
+</div>
+	<div id="chartmain" style="width:1200px; height:700px;float:left;"></div>
+	<script type="text/javascript">		
+$(document).ready(function () {
+startRequest('ss.json');
+});
+$(clickt).click(function(){
+startRequest('ss.json');
+setInterval("startRequest('ss.json')",200000);
+});
+
+$(clicky).click(function(){
+startRequest('data.json');
+});
+
+$(click7).click(function(){
+startRequest('data7.json');
+});
+
+$(clickbaidu).click(function(){
+startRequest('baiduss.json');
+setInterval("startRequest('baiduss.json')",200000);
+});
+
+$(clickbaiduy).click(function(){
+startRequest('baiduy.json');
+});
+$(clickbaidu7).click(function(){
+startRequest('baidu7.json');
+});
+		var myChart = echarts.init(document.getElementById('chartmain'),'dark');		
+		myChart.setOption({
+			tooltip:{},
+			legend:{
+				data:['带宽情况']
+			},
+			xAxis:{
+				data:[]
+			},
+			yAxis:{},
+ grid:{
+                    x:45,
+                    y:25,
+                    x2:25,
+                    y2:40,
+                    borderWidth:1
+                },
+			series:[
+				{
+					name:'带宽情况',
+					type:'bar',
+					data:[]
+				}
+			]
+		})		
+function startRequest(i){
+		//异步加载流量
+		$.get(i).done(function (data) {			
+		//	data = eval('('+data+')');
+			myChart.setOption({
+				xAxis:{
+					data:data.time
+				},
+				series:[
+					{
+						//根据名字对应到相应的系列
+						name:"带宽 Mbps",
+						data:data.speed
+					}
+				]
+			});
+		});
+			};
+	</script>
+</div>
+</body>
+</html>
