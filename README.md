@@ -7,7 +7,7 @@
 * 2017/3/26		add	php short
 * 2017/3/26		add	php short '\n
 * 2017/10/13		add	port
-* 2022/10/13		add	port
+* 2022/07/05		add	add test gofile
 
 
 > 哈尔滨市，周二 10月16日 (实时：7℃)，多云，全天温度: 9 ~ -2℃，pm2.5:21，风力: 西北风微风。
