@@ -1,6 +1,9 @@
 #-*-coding:utf-8-*-
 import requests,json
 import random,time
+'''
+安装FIDDLER抓包工具分析打卡小程序
+'''
 def url_post():
     url='https://jkm.kaiqun.net/modules/student-clock-in/save'
     body = \
